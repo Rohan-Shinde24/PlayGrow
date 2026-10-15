@@ -1,36 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PlayGrow web application
 
-## Getting Started
+The web app uses Next.js App Router, TypeScript, PostgreSQL, Prisma, and Joi.
 
-First, run the development server:
+## Backend setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Install dependencies with `npm install`.
+2. Copy `.env.example` to `.env` and set `DATABASE_URL` to your PostgreSQL connection URL.
+3. Validate the Prisma schema with `npm run db:validate`.
+4. Generate the Prisma client with `npm run db:generate`.
+5. Create/apply a development migration with `npm run db:migrate -- --name init`.
+6. Start the app with `npm run dev`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The database schema lives in `prisma/schema.prisma`; `prisma.config.ts` loads the CLI connection URL, and `src/lib/db.ts` creates the PostgreSQL-backed Prisma client. Migrations are written to `prisma/migrations/`. Use `npm run db:migrate:deploy` to apply committed migrations in production. Review migrations before applying them to production, and never use a destructive reset against a production database.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Joi request schemas are in `src/validations/`, server-only Prisma CRUD services are in `src/modules/`, and App Router handlers are in `src/app/api/`. API routes use HTTP-only, `SameSite=Lax` session cookies backed by hashed tokens in the `Session` table. Admin handlers enforce the administrator role on the server and write audit records. Wallet changes and reward redemption are performed server-side; mission claims only award points for progress already marked complete by trusted server-side code.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The `AuthToken` model and token helpers support hashed, expiring verification and reset tokens. Email delivery is not configured yet: resend-verification and forgot-password return `503` until an email provider is integrated. Add token issuance and delivery together when configuring the provider; do not expose raw auth tokens in responses or logs.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Pagination accepts `skip` (default `0`) and `take` (default `20`, maximum `100`). Public game reads omit the configured launch URL; authenticated game launch requests are handled separately. Before deploying, apply the migrations and configure `DATABASE_URL`.
