@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/tests/
 
 project-prompt
 project-prompt*
