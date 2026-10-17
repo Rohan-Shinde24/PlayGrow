@@ -32,6 +32,13 @@
           "image": "",
           "imageWidth": 76
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "PlayGrow uses your photos so you can set a profile picture.",
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {
