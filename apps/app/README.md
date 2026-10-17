@@ -16,6 +16,19 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+## Backend API
+
+The app connects to the Express API at `http://localhost:4000/api` by default.
+Override the base URL with `EXPO_PUBLIC_API_URL` (for example, set it in an
+`.env` file before starting Expo). The variable is embedded when the app is
+bundled, so restart the Expo development server after changing it.
+
+`localhost` works in the iOS simulator and web browser. For Android, use
+`http://10.0.2.2:4000/api` in the Android emulator because its `localhost`
+refers to the emulator itself. On a physical device, use the computer's
+reachable LAN IP address (for example, `http://192.168.1.20:4000/api`) and
+ensure the device and backend can reach each other on the network.
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)

@@ -28,7 +28,7 @@ export default function GameDetailsScreen() {
           style={[styles.backBtn, styles.emptyBackBtn, { marginTop: top + Spacing.sm }]}
           onPress={() => router.back()}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Ionicons name="chevron-back" size={22} color={Colors.text.primary} />
         </TouchableOpacity>
         <EmptyState
           icon="game-controller-outline"
@@ -45,7 +45,7 @@ export default function GameDetailsScreen() {
       <View style={[styles.hero, { backgroundColor: game.backgroundColor }]}>
         <View style={[styles.heroHeader, { top: top + Spacing.sm }]}>
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Text style={styles.backIcon}>‹</Text>
+            <Ionicons name="chevron-back" size={22} color={Colors.text.primary} />
           </TouchableOpacity>
           <View style={styles.heroActions}>
             <TouchableOpacity style={styles.heroActionBtn}>
@@ -178,12 +178,6 @@ const styles = StyleSheet.create({
   emptyBackBtn: {
     marginLeft: Spacing.lg,
     marginBottom: Spacing.lg,
-  },
-  backIcon: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: Colors.text.primary,
-    marginTop: -2,
   },
   heroActions: {
     flexDirection: 'row',

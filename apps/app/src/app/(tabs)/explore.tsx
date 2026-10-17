@@ -11,13 +11,21 @@ import {
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/hooks';
-import { setSelectedCategory, setSearchQuery } from '@/store/slices/gamesSlice';
-import { AppHeader, ChipGroup, EmptyState, GameCard, SectionHeader } from '@/components';
+import { setSelectedCategory, setSearchQuery, fetchGames } from '@/store/slices/gamesSlice';
+import { AppHeader, ChipGroup, EmptyState, GameCard, GamesLoadStatus, SectionHeader } from '@/components';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '@/constants';
 
 export default function ExploreScreen() {
   const dispatch = useAppDispatch();
-  const { games, categories, selectedCategory, searchQuery, featuredGame } = useAppSelector((state) => state.games);
+  const {
+    games,
+    categories,
+    selectedCategory,
+    searchQuery,
+    featuredGame,
+    isLoading,
+    error,
+  } = useAppSelector((state) => state.games);
   const [filterVisible, setFilterVisible] = useState(false);
   const [sortBy, setSortBy] = useState<'recommended' | 'highest-reward' | 'top-rated'>('recommended');
 
@@ -80,6 +88,19 @@ export default function ExploreScreen() {
         ]}
       >
         <AppHeader onAvatarPress={() => router.push('/(tabs)/profile')} />
+        <GamesLoadStatus
+          isLoading={isLoading}
+          error={error}
+          onRetry={() => { void dispatch(fetchGames()); }}
+        />
+        {!isLoading && !error && games.length === 0 && (
+          <EmptyState
+            icon="game-controller-outline"
+            title="No games available"
+            message="Check back later to discover new games."
+            compact
+          />
+        )}
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>

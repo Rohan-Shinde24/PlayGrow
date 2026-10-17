@@ -12,6 +12,7 @@ import {
 import { router } from 'expo-router';
 import { useAppDispatch, useScreenInsets } from '@/hooks';
 import { setLoggedIn, updateProfile } from '@/store/slices/userSlice';
+import { login, profileFromAuthUser, register } from '@/services/authApi';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Colors, Spacing, Typography } from '@/constants';
@@ -19,14 +20,15 @@ import { Colors, Spacing, Typography } from '@/constants';
 type AuthMode = 'login' | 'register';
 
 interface AuthFormValues {
-  username: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  identifier: string;
   password: string;
 }
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
   const isRegister = mode === 'register';
+  const [requestError, setRequestError] = React.useState<string | null>(null);
   const dispatch = useAppDispatch();
   const { bottom, headerTop } = useScreenInsets();
   const {
@@ -34,26 +36,26 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<AuthFormValues>({
-    defaultValues: {  username: '', email: '', identifier: '', password: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', password: '' },
   });
 
-  const onSubmit = (values: AuthFormValues) => {
-    if (isRegister) {
-      dispatch(updateProfile({
-        username: values.username.trim(),
-        email: values.email.trim(),
-      }));
-    } else {
-      const identifier = values.identifier.trim();
-      dispatch(updateProfile(
-        identifier.includes('@')
-          ? { email: identifier }
-          : { username: identifier }
-      ));
+  const onSubmit = async (values: AuthFormValues) => {
+    setRequestError(null);
+    try {
+      const session = isRegister
+        ? await register({
+          firstName: values.firstName.trim(),
+          lastName: values.lastName.trim(),
+          email: values.email.trim(),
+          password: values.password,
+        })
+        : await login(values.email.trim(), values.password);
+      dispatch(updateProfile(profileFromAuthUser(session.user)));
+      dispatch(setLoggedIn(true));
+      router.replace('/onboarding');
+    } catch (error) {
+      setRequestError(error instanceof Error ? error.message : 'Unable to sign in. Please try again.');
     }
-
-    dispatch(setLoggedIn(true));
-    router.replace('/onboarding');
   };
 
   return (
@@ -90,76 +92,71 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         {isRegister && (
           <Controller
             control={control}
-            name="username"
+            name="firstName"
             rules={{
-              required: 'Username is required',
-              minLength: { value: 3, message: 'Username must be at least 3 characters' },
+              required: 'First name is required',
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Username"
-                placeholder="Choose a username"
+                label="First name"
+                placeholder="Your first name"
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                autoCapitalize="none"
-                error={errors.username?.message}
+                autoCapitalize="words"
+                autoComplete="given-name"
+                textContentType="givenName"
+                error={errors.firstName?.message}
+                returnKeyType="next"
+              />
+            )}
+          />
+        )}
+        {isRegister && (
+          <Controller
+            control={control}
+            name="lastName"
+            rules={{ required: 'Last name is required' }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                label="Last name"
+                placeholder="Your last name"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                autoCapitalize="words"
+                autoComplete="family-name"
+                textContentType="familyName"
+                error={errors.lastName?.message}
                 returnKeyType="next"
               />
             )}
           />
         )}
 
-        {isRegister ? (
-          <Controller
-            control={control}
-            name="email"
-            rules={{
-              required: 'Email is required',
-              pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email address' },
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Email"
-                placeholder="you@example.com"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                autoCapitalize="none"
-                autoComplete="email"
-                keyboardType="email-address"
-                textContentType="emailAddress"
-                error={errors.email?.message}
-                returnKeyType="next"
-              />
-            )}
-          />
-        ) : (
-          <Controller
-            control={control}
-            name="identifier"
-            rules={{
-              required: 'Enter your username or email',
-              validate: (value) =>
-                value.trim().length >= 3 || 'Enter a valid username or email',
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Username or email"
-                placeholder="Username or email"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                autoCapitalize="none"
-                autoComplete="username"
-                keyboardType="email-address"
-                textContentType="username"
-                error={errors.identifier?.message}
-                returnKeyType="next"
-              />
-            )}
-          />
-        )}
+        <Controller
+          control={control}
+          name="email"
+          rules={{
+            required: 'Email is required',
+            pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email address' },
+          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label="Email"
+              placeholder="you@example.com"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
+              textContentType="emailAddress"
+              error={errors.email?.message}
+              returnKeyType="next"
+            />
+          )}
+        />
         <Controller
           control={control}
           name="password"
@@ -183,6 +180,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
             />
           )}
         />
+        {requestError && <Text style={styles.requestError} accessibilityRole="alert">{requestError}</Text>}
         <Button
           title={isRegister ? 'Create Account' : 'Login'}
           onPress={handleSubmit(onSubmit)}
@@ -263,6 +261,11 @@ const styles = StyleSheet.create({
     color: Colors.text.tertiary,
     fontSize: Typography.fontSize.sm,
     marginBottom: Spacing.xl,
+  },
+  requestError: {
+    color: Colors.error,
+    fontSize: Typography.fontSize.md,
+    marginBottom: Spacing.md,
   },
   submit: {
     marginTop: Spacing.sm,

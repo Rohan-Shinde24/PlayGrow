@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useScreenInsets } from '@/hooks';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '@/constants';
@@ -26,7 +27,7 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({ title, right, onBack
         onPress={onBack ?? (() => router.back())}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <Text style={styles.backIcon}>‹</Text>
+        <Ionicons name="chevron-back" size={22} color={Colors.text.primary} />
       </TouchableOpacity>
 
       <Text style={styles.headerTitle} numberOfLines={1}>
@@ -54,12 +55,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...Shadows.sm,
-  },
-  backIcon: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: Colors.text.primary,
-    marginTop: -2,
   },
   headerTitle: {
     flex: 1,

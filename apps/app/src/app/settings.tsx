@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { useAppDispatch, useAppSelector, useScreenInsets } from '@/hooks';
 import { logout } from '@/store/slices/userSlice';
+import { logoutSession } from '@/services/authApi';
 import { Avatar, Button, ScreenHeader } from '@/components';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '@/constants';
 
@@ -43,7 +44,7 @@ function SettingItem({ icon, label, onPress, hasToggle, toggleValue, onToggle, d
           thumbColor={toggleValue ? Colors.primary : Colors.white}
         />
       ) : (
-        <Text style={styles.settingChevron}>›</Text>
+        <Ionicons name="chevron-forward" size={18} color={Colors.text.tertiary} />
       )}
     </TouchableOpacity>
   );
@@ -59,8 +60,10 @@ export default function SettingsScreen() {
   const [rewardUpdates, setRewardUpdates] = useState(true);
 
   const handleLogout = () => {
-    dispatch(logout());
-    router.replace('/');
+    void logoutSession().catch(() => undefined).finally(() => {
+      dispatch(logout());
+      router.replace('/login');
+    });
   };
 
   return (
@@ -202,10 +205,6 @@ const styles = StyleSheet.create({
   },
   settingLabelDanger: {
     color: Colors.error,
-  },
-  settingChevron: {
-    fontSize: 22,
-    color: Colors.text.tertiary,
   },
 
   // Logout

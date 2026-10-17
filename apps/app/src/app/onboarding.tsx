@@ -177,11 +177,13 @@ export default function OnboardingScreen() {
 
         {/* Get Started button */}
         <Button
-          title={currentIndex === slides.length - 1 ? 'Get Started →' : 'Next →'}
+          title={currentIndex === slides.length - 1 ? 'Get Started' : 'Next'}
           onPress={handleNext}
           size="lg"
           fullWidth
           style={styles.getStartedButton}
+          iconPosition="right"
+          icon={<Ionicons name="arrow-forward" size={18} color={Colors.white} />}
         />
       </View>
     </View>

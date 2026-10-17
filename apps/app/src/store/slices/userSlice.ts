@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface UserState {
   id: string;
+  role: 'player' | 'company' | 'admin';
   name: string;
   email: string;
   username: string;
@@ -22,6 +23,7 @@ export interface UserState {
 
 const initialState: UserState = {
   id: '',
+  role: 'player',
   name: '',
   email: '',
   username: '',
@@ -67,6 +69,22 @@ const userSlice = createSlice({
     },
     logout(state) {
       state.isLoggedIn = false;
+      state.id = '';
+      state.name = '';
+      state.username = '';
+      state.email = '';
+      state.avatar = '';
+      state.role = 'player';
+      state.level = 0;
+      state.xp = 0;
+      state.maxXp = 0;
+      state.totalPoints = 0;
+      state.availablePoints = 0;
+      state.pendingPoints = 0;
+      state.redeemedPoints = 0;
+      state.gamesPlayed = 0;
+      state.streak = 0;
+      state.streakDays = [false, false, false, false, false, false, false];
     },
   },
 });

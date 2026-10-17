@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { store } from '@/store';
 import { StatusBar } from 'expo-status-bar';
+import { fetchGames } from '@/store/slices/gamesSlice';
+import { setLoggedIn, updateProfile } from '@/store/slices/userSlice';
+import { getStoredSession, profileFromAuthUser } from '@/services/authApi';
 
 export default function RootLayout() {
+  useEffect(() => {
+    void store.dispatch(fetchGames());
+    void getStoredSession().then((session) => {
+      if (!session) return;
+      store.dispatch(updateProfile(profileFromAuthUser(session.user)));
+      store.dispatch(setLoggedIn(true));
+    });
+  }, []);
+
   return (
     <SafeAreaProvider>
       <Provider store={store}>

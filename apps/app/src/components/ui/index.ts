@@ -12,3 +12,4 @@ export { ScreenHeader } from './ScreenHeader';
 export { EmptyState } from './IconTile';
 export { AuthForm } from './AuthForm';
 export { GameCard } from './GameCard';
+export { GamesLoadStatus } from './GamesLoadStatus';

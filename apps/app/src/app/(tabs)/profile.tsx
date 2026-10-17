@@ -89,8 +89,9 @@ export default function ProfileScreen() {
               <Ionicons name="medal-outline" size={20} color={Colors.primary} />
               <Text style={styles.badgesTitleText}>Achievement Badges</Text>
             </View>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View All ›</Text>
+            <TouchableOpacity style={styles.viewAllRow}>
+              <Text style={styles.viewAll}>View All</Text>
+              <Ionicons name="chevron-forward" size={16} color={Colors.primary} />
             </TouchableOpacity>
           </View>
           <EmptyState
@@ -115,7 +116,7 @@ export default function ProfileScreen() {
             >
               <Ionicons name={item.icon} size={20} color={Colors.primary} style={styles.menuIcon} />
               <Text style={styles.menuLabel}>{item.label}</Text>
-              <Text style={styles.menuChevron}>›</Text>
+              <Ionicons name="chevron-forward" size={18} color={Colors.text.tertiary} />
             </TouchableOpacity>
           ))}
         </Card>
@@ -229,6 +230,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.text.primary,
   },
+  viewAllRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
   viewAll: {
     fontSize: Typography.fontSize.md,
     color: Colors.primary,
@@ -281,9 +287,5 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.lg,
     fontWeight: '500',
     color: Colors.text.primary,
-  },
-  menuChevron: {
-    fontSize: 22,
-    color: Colors.text.tertiary,
   },
 });

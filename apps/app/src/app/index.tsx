@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Colors, Typography, Spacing } from '@/constants';
+import { getStoredSession } from '@/services/authApi';
 
 export default function SplashScreen() {
   const [fadeAnim] = useState(() => new Animated.Value(0));
@@ -31,7 +32,9 @@ export default function SplashScreen() {
     ]).start();
 
     const timer = setTimeout(() => {
-      router.replace('/login');
+      void getStoredSession().then((session) => {
+        router.replace(session ? '/(tabs)' : '/login');
+      });
     }, 2500);
 
     return () => clearTimeout(timer);

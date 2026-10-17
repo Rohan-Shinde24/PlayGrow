@@ -39,7 +39,8 @@
           "photosPermission": "PlayGrow uses your photos so you can set a profile picture.",
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

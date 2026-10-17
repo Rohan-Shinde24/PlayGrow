@@ -10,9 +10,10 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector } from '@/hooks';
-import { AppHeader, Card, EmptyState, GameCard, SectionHeader } from '@/components';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { AppHeader, Card, EmptyState, GameCard, GamesLoadStatus, SectionHeader } from '@/components';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '@/constants';
+import { fetchGames } from '@/store/slices/gamesSlice';
 
 const adSlides = [
   { id: 'ad-1', icon: 'megaphone-outline' as const },
@@ -21,6 +22,7 @@ const adSlides = [
 ];
 
 export default function HomeScreen() {
+  const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
   const games = useAppSelector((state) => state.games);
   const { width: screenWidth } = useWindowDimensions();
@@ -52,6 +54,11 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <AppHeader onAvatarPress={() => router.push('/(tabs)/profile')} />
+        <GamesLoadStatus
+          isLoading={games.isLoading}
+          error={games.error}
+          onRetry={() => { void dispatch(fetchGames()); }}
+        />
 
         {/* Greeting */}
         <View style={styles.greetingSection}>
@@ -121,7 +128,9 @@ export default function HomeScreen() {
                       user.streakDays[index] ? styles.streakCircleActive : styles.streakCircleInactive,
                     ]}
                   >
-                    <Text style={styles.streakCheck}>{user.streakDays[index] ? '✓' : ''}</Text>
+                    {user.streakDays[index] ? (
+                      <Ionicons name="checkmark" size={14} color={Colors.white} />
+                    ) : null}
                   </View>
                   <Text style={styles.streakDayLabel}>{day}</Text>
                 </View>
@@ -209,7 +218,7 @@ export default function HomeScreen() {
             </ScrollView>
           </>
         )}
-        {games.games.length === 0 && (
+        {!games.isLoading && !games.error && games.games.length === 0 && (
           <View style={styles.emptyGames}>
             <EmptyState
               icon="game-controller-outline"
@@ -343,11 +352,6 @@ const styles = StyleSheet.create({
   },
   streakCircleInactive: {
     backgroundColor: Colors.borderLight,
-  },
-  streakCheck: {
-    color: Colors.white,
-    fontSize: 14,
-    fontWeight: '700',
   },
   streakDayLabel: {
     fontSize: Typography.fontSize.xs,
